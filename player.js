@@ -4,8 +4,6 @@ var g_mainCanvas = null;
 var g_cursorCanvas = null;
 
 var g_blitImage = null;
-//var g_screenImage = null;
-//var g_cursorImage = null;
 
 var kMaxCursorWidth = 32;
 var kMaxCursorHeight = 32;
@@ -85,16 +83,11 @@ function imageLoaded()
 
 function executeCurrentStep()
 {
-    //alert("EX: " + g_index);
     var stepKind = g_script[g_index][1];
     if (stepKind == "blitimg") {
-        //g_blitImage = new Image();
-        //g_blitImage.onload = advanceToNextStep;
-        //g_blitImage.src = g_script[g_index][2];
         var url = g_script[g_index][2];
         g_blitImage = g_imageCache[url];
         advanceToNextStep();
-
     } else if (stepKind == "blit") {
         var ctx = g_mainCanvas.getContext("2d");
         var blits = g_script[g_index][2]
@@ -110,55 +103,25 @@ function executeCurrentStep()
         }
         advanceToNextStep();
     } else if (stepKind == "screen") {
-        //g_screenImage = new Image();
-        //g_screenImage.onload = screenImageLoaded;
-        //g_screenImage.src = g_script[g_index][2];
-
         var url = g_script[g_index][2];
         var ctx = g_mainCanvas.getContext("2d");
         ctx.clearRect(0, 0, width(), height());
         ctx.drawImage(g_imageCache[url], 0, 0);
         advanceToNextStep();
-
-
     } else if (stepKind == "cpos") {
         g_cursorCanvas.style.left = g_script[g_index][2] + "px";
         g_cursorCanvas.style.top = g_script[g_index][3] + "px";
         advanceToNextStep();
     } else if (stepKind == "cimg") {
-        //g_cursorImage = new Image();
-        //g_cursorImage.onload = cursorImageLoaded;
-        //g_cursorImage.src = g_script[g_index][2];
-
         var url = g_script[g_index][2];
         var ctx = g_cursorCanvas.getContext("2d");
         ctx.clearRect(0, 0, kMaxCursorWidth, kMaxCursorHeight);
         ctx.drawImage(g_imageCache[url], 0, 0);
         advanceToNextStep();
-
-
     } else {
         alert("Invalid step in animation script: " + g_script[g_index]);
     }
 }
-
-/*
-function screenImageLoaded()
-{
-    var ctx = g_mainCanvas.getContext("2d");
-    ctx.clearRect(0, 0, width(), height());
-    ctx.drawImage(g_screenImage, 0, 0);
-    advanceToNextStep();
-}
-
-function cursorImageLoaded()
-{
-    var ctx = g_cursorCanvas.getContext("2d");
-    ctx.clearRect(0, 0, kMaxCursorWidth, kMaxCursorHeight);
-    ctx.drawImage(g_cursorImage, 0, 0);
-    advanceToNextStep();
-}
-*/
 
 function advanceToNextStep()
 {
