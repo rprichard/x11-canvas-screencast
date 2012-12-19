@@ -144,7 +144,8 @@ def generate_animation(script_filename):
                 for (index, item) in enumerate(script)
                 if item[1] == "screen"]
 
-    images = [misc.imread(f) for i, f in frames]
+    script_dir = os.path.dirname(script_filename)
+    images = [misc.imread(os.path.join(script_dir, f)) for i, f in frames]
 
     zero = images[0] - images[0]
     pairs = zip([zero] + images[:-1], images)
@@ -227,7 +228,8 @@ def generate_animation(script_filename):
 
         new_script[script_index] = [script[script_index][0], "blit", blitlist]
 
-    new_script = [[0, "blitimg", anim_name + "_packed.png"]] + new_script
+    packed_png_relpath = os.path.relpath(anim_name + "_packed.png", script_dir)
+    new_script = [[0, "blitimg", packed_png_relpath]] + new_script
     f = open(anim_name + "_packed.txt", "wb")
     for item in new_script:
         f.write(json.dumps(item) + ",\n")

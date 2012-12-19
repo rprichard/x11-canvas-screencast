@@ -5,6 +5,7 @@ function Player(parent, scriptUrl, widthPx, heightPx)
     var kMaxCursorWidth = 32;
     var kMaxCursorHeight = 32;
 
+    var g_scriptDir = null;
     var g_script = null;
     var g_index = -1;
     var g_divElement = null;
@@ -22,6 +23,14 @@ function Player(parent, scriptUrl, widthPx, heightPx)
     var g_paused = false;
 
     this.onload = function() {};
+
+    // Unlike POSIX dirname, this function's return value always ends with '/'.
+    function dirname(path) {
+        var ret = path.match(/.*\//);
+        if (ret == "")
+            ret = "./";
+        return ret;
+    }
 
     function get(url, continuation)
     {
@@ -49,7 +58,7 @@ function Player(parent, scriptUrl, widthPx, heightPx)
     {
         var stepKind = g_script[g_index][1];
         if (stepKind == "blitimg") {
-            var url = g_script[g_index][2];
+            var url = g_scriptDir + "/" + g_script[g_index][2];
             g_blitImage = g_imageCache[url];
             advanceToNextStep();
         } else if (stepKind == "blit") {
@@ -67,7 +76,7 @@ function Player(parent, scriptUrl, widthPx, heightPx)
             }
             advanceToNextStep();
         } else if (stepKind == "screen") {
-            var url = g_script[g_index][2];
+            var url = g_scriptDir + "/" + g_script[g_index][2];
             var ctx = g_mainCanvas.getContext("2d");
             ctx.clearRect(0, 0, g_mainCanvas.width, g_mainCanvas.height);
             ctx.drawImage(g_imageCache[url], 0, 0);
@@ -77,7 +86,7 @@ function Player(parent, scriptUrl, widthPx, heightPx)
             g_cursorCanvas.style.top = g_script[g_index][3] + "px";
             advanceToNextStep();
         } else if (stepKind == "cimg") {
-            var url = g_script[g_index][2];
+            var url = g_scriptDir + "/" + g_script[g_index][2];
             var ctx = g_cursorCanvas.getContext("2d");
             ctx.clearRect(0, 0, g_cursorCanvas.width, g_cursorCanvas.height);
             ctx.drawImage(g_imageCache[url], 0, 0);
@@ -144,6 +153,7 @@ function Player(parent, scriptUrl, widthPx, heightPx)
     g_cursorCanvas.height = kMaxCursorHeight;
     g_divElement.appendChild(g_cursorCanvas);
 
+    g_scriptDir = dirname(scriptUrl);
     get(scriptUrl, function(script) {
         g_script = eval("[\n" + script + "\n]");
         for (var i = 0; i < g_script.length; ++i) {
@@ -152,7 +162,7 @@ function Player(parent, scriptUrl, widthPx, heightPx)
                     stepKind == "screen" ||
                     stepKind == "cimg") {
                 g_imageCount += 1;
-                var url = g_script[i][2];
+                var url = g_scriptDir + "/" + g_script[i][2];
                 var image = new Image();
                 g_imageCache[url] = image;
                 image.onload = imageLoaded;
