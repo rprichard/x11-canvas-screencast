@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+    <script src="../player.js"></script>
+</head>
+<body>
+
+<p>
+Note: The player uses an AJAX request to load the example script.  If you're
+trying to view this page through a file:// URL, then the page is likely not to
+load due to same-origin security restrictions in your browser.  With Chrome,
+you can (temporarily) relax the restrictions using the
+--allow-file-access-from-files command-line option, which allows any page from
+a file:// URL to read any file on your local file system that your account is
+able to access.  For other browsers, you will want to view the page via HTTP.
+</p>
+
+before animation
+<div id="exampleAnimation"></div>
+<script>
+    var p = new Player("example_packed.txt", 950, 500);
+    document.getElementById("exampleAnimation").appendChild(p.element);
+    p.start();
+</script>
+after animation
+
+</body>
+</html>
