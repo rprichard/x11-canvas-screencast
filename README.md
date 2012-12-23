@@ -42,7 +42,9 @@ Usage
     $ ./screencast --rect X Y W H --output example.js
     </pre>
 
-   Hit Enter to stop the capture.
+   Hit Enter to stop the capture.  Turning on CAPS LOCK will temporarily pause
+   the capture.  Turning off CAPS LOCK returns the mouse cursor to its position
+   before pausing the capture, then unpauses the capture.
 
 3. Pack the animation:
 
