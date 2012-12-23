@@ -11,7 +11,8 @@
 before animation
 <div id="exampleAnimation"></div>
 <script>
-    player(document.getElementById("exampleAnimation"), "example_packed.txt", 950, 500)
+    var p = player("example_packed.txt", 950, 500);
+    document.getElementById("exampleAnimation").appendChild(p);
 </script>
 after animation
 

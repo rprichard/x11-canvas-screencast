@@ -19,10 +19,18 @@ function Player(scriptUrl, widthPx, heightPx)
     var g_imageLoadCount = 0;
 
     var g_loaded = false;
-    var g_pauseFlag = true;
-    var g_paused = false;
+    var g_paused = true;
+    var g_stepTimeoutID = null;
 
     this.onload = function() {};
+    this.onloop = function() {};
+
+    function assert(x) {
+        // With IE9, window.console is undefined (unless the console is
+        // opened), so we must avoid calling console.assert.
+        if (!x)
+            throw new Error("Assertion failed");
+    }
 
     // Unlike POSIX dirname, this function's return value always ends with '/'.
     function dirname(path) {
@@ -48,22 +56,43 @@ function Player(scriptUrl, widthPx, heightPx)
     function imageLoaded()
     {
         g_imageLoadCount++;
-        if (g_imageLoadCount == g_imageCount) {
-            g_index = -1;
-            advanceToNextStep();
-        }
+        if (g_imageLoadCount == g_imageCount)
+            finishSetup();
     }
 
-    function executeCurrentStep()
+    function finishSetup()
     {
-        var stepKind = g_script[g_index][1];
+        // Avoid flicker by executing the initial 0-delay steps before firing
+        // the onload handler.  The canvas will be painted when the handler
+        // fires.
+        assert(!g_loaded);
+        for (g_index = 0; 1; g_index++) {
+            assert(g_index < g_script.length);
+            var delayMS = g_script[g_index][0];
+            if (delayMS > 0)
+                break;
+            executeStep(g_index);
+        }
+
+        that.onload();
+
+        // The onload handler could have called start or pause, so we must wait
+        // until now to set g_loaded, and we must wait to read g_paused until
+        // now.
+        g_loaded = true;
+        if (!g_paused)
+            beginCurrentStep();
+    }
+
+    function executeStep(index)
+    {
+        var stepKind = g_script[index][1];
         if (stepKind == "blitimg") {
-            var url = g_scriptDir + "/" + g_script[g_index][2];
+            var url = g_scriptDir + "/" + g_script[index][2];
             g_blitImage = g_imageCache[url];
-            advanceToNextStep();
         } else if (stepKind == "blit") {
             var ctx = g_mainCanvas.getContext("2d");
-            var blits = g_script[g_index][2]
+            var blits = g_script[index][2]
             for (var i = 0; i < blits.length; ++i) {
                 var blit = blits[i];
                 var sx = blit[0];
@@ -74,66 +103,54 @@ function Player(scriptUrl, widthPx, heightPx)
                 var dy = blit[5];
                 ctx.drawImage(g_blitImage, sx, sy, w, h, dx, dy, w, h);
             }
-            advanceToNextStep();
         } else if (stepKind == "screen") {
-            var url = g_scriptDir + "/" + g_script[g_index][2];
+            var url = g_scriptDir + "/" + g_script[index][2];
             var ctx = g_mainCanvas.getContext("2d");
             ctx.clearRect(0, 0, g_mainCanvas.width, g_mainCanvas.height);
             ctx.drawImage(g_imageCache[url], 0, 0);
-            advanceToNextStep();
         } else if (stepKind == "cpos") {
-            g_cursorCanvas.style.left = g_script[g_index][2] + "px";
-            g_cursorCanvas.style.top = g_script[g_index][3] + "px";
-            advanceToNextStep();
+            g_cursorCanvas.style.left = g_script[index][2] + "px";
+            g_cursorCanvas.style.top = g_script[index][3] + "px";
         } else if (stepKind == "cimg") {
-            var url = g_scriptDir + "/" + g_script[g_index][2];
+            var url = g_scriptDir + "/" + g_script[index][2];
             var ctx = g_cursorCanvas.getContext("2d");
             ctx.clearRect(0, 0, g_cursorCanvas.width, g_cursorCanvas.height);
             ctx.drawImage(g_imageCache[url], 0, 0);
-            advanceToNextStep();
         } else {
-            alert("Invalid step in animation script: " + g_script[g_index]);
+            alert("Invalid step in animation script: " + g_script[index]);
         }
     }
 
-    function advanceToNextStep()
+    function beginCurrentStep()
     {
-        g_index = (g_index + 1) % g_script.length;
-        waitOnCurrentStep()
-    }
-
-    function waitOnCurrentStep()
-    {
+        assert(!g_paused);
         var delayMS = g_script[g_index][0];
-        if (delayMS != 0) {
-            // Delay the onload notification until the first wait.  At this
-            // point, the animation script has had an opportunity to paint the
-            // canvas, so we can avoid flicker.
-            if (!g_loaded) {
-                g_loaded = true;
-                that.onload();
+        g_stepTimeoutID = window.setTimeout(function() {
+            g_stepTimeoutID = null;
+            executeStep(g_index);
+            g_index++;
+            if (g_index == g_script.length) {
+                g_index = 0;
+                that.onloop();
+                if (g_paused)
+                    return;
             }
-            // If the player is set to "pause", then avoid setting a timeout.
-            // Set g_paused to record the fact that a timeout needs to created
-            // if/when start() is called.
-            if (g_pauseFlag) {
-                g_paused = true;
-                return;
-            }
-        }
-        window.setTimeout(executeCurrentStep, delayMS);
+            beginCurrentStep();
+        }, delayMS);
     }
 
     this.start = function() {
-        g_pauseFlag = false;
-        if (g_paused) {
-            g_paused = false;
-            waitOnCurrentStep();
-        }
+        g_paused = false;
+        if (g_loaded && g_stepTimeoutID === null)
+            beginCurrentStep();
     }
 
     this.pause = function() {
-        g_pauseFlag = true;
+        g_paused = true;
+        if (g_stepTimeoutID !== null) {
+            assert(g_loaded);
+            window.clearTimeout(g_stepTimeoutID);
+        }
     }
 
     g_divElement = document.createElement("div");
