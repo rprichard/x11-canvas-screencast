@@ -151,6 +151,7 @@ function Player(scriptUrl, widthPx, heightPx)
         if (g_stepTimeoutID !== null) {
             assert(g_loaded);
             window.clearTimeout(g_stepTimeoutID);
+            g_stepTimeoutID = null;
         }
     }
 
