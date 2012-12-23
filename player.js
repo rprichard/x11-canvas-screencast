@@ -34,10 +34,11 @@ function Player(scriptUrl, widthPx, heightPx)
 
     // Unlike POSIX dirname, this function's return value always ends with '/'.
     function dirname(path) {
-        var ret = path.match(/.*\//);
-        if (ret == "")
-            ret = "./";
-        return ret;
+        var m = path.match(/.*\//);
+        if (m === null)
+            return "./";
+        else
+            return m[0];
     }
 
     function get(url, continuation)
