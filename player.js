@@ -1,4 +1,4 @@
-function Player(scriptUrl, widthPx, heightPx)
+function Player(script, scriptDir)
 {
     var that = this;
 
@@ -30,28 +30,6 @@ function Player(scriptUrl, widthPx, heightPx)
         // opened), so we must avoid calling console.assert.
         if (!x)
             throw new Error("Assertion failed");
-    }
-
-    // Unlike POSIX dirname, this function's return value always ends with '/'.
-    function dirname(path) {
-        var m = path.match(/.*\//);
-        if (m === null)
-            return "./";
-        else
-            return m[0];
-    }
-
-    function get(url, continuation)
-    {
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                continuation(xmlhttp.responseText);
-            }
-        }
-        xmlhttp.open("GET", url, true);
-        xmlhttp.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-        xmlhttp.send(null);
     }
 
     function imageLoaded()
@@ -166,6 +144,8 @@ function Player(scriptUrl, widthPx, heightPx)
         return g_loaded;
     }
 
+    var widthPx = script["width"];
+    var heightPx = script["height"];
     g_divElement = document.createElement("div");
     g_divElement.style.position = "relative";
     g_divElement.style.width = widthPx + "px";
@@ -185,21 +165,19 @@ function Player(scriptUrl, widthPx, heightPx)
     g_cursorCanvas.height = kMaxCursorHeight;
     g_divElement.appendChild(g_cursorCanvas);
 
-    g_scriptDir = dirname(scriptUrl);
-    get(scriptUrl, function(script) {
-        g_script = eval("[\n" + script + "\n]");
-        for (var i = 0; i < g_script.length; ++i) {
-            var stepKind = g_script[i][1];
-            if (stepKind == "blitimg" ||
-                    stepKind == "screen" ||
-                    stepKind == "cimg") {
-                g_imageCount += 1;
-                var url = g_scriptDir + "/" + g_script[i][2];
-                var image = new Image();
-                g_imageCache[url] = image;
-                image.onload = imageLoaded;
-                image.src = url;
-            }
+    g_scriptDir = scriptDir
+    g_script = script["steps"]
+    for (var i = 0; i < g_script.length; ++i) {
+        var stepKind = g_script[i][1];
+        if (stepKind == "blitimg" ||
+                stepKind == "screen" ||
+                stepKind == "cimg") {
+            g_imageCount += 1;
+            var url = g_scriptDir + "/" + g_script[i][2];
+            var image = new Image();
+            g_imageCache[url] = image;
+            image.onload = imageLoaded;
+            image.src = url;
         }
-    });
+    }
 }

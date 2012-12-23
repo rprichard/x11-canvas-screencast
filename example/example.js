@@ -1,13 +1,10 @@
-// This file is the output from the screencast program.  Typical usage is to
-// run screencast using tee:
-//
-//   $ screencast | tee example.txt
-//
-
-//STARTING IN 2 SECONDS
+example = {
+"width" : 950,
+"height" : 500,
+"steps" : [
 
 // Change the first sample to have 0-delay.  (This could be fixed in the
-// capture program.
+// capture program.)
 [0,"screen","sample_1356229702967.png"],
 
 [0,"cpos",41,151],
@@ -53,3 +50,5 @@
 // Add a delay at the end by copying the cpos.  (There should probably be a nop
 // action.)
 [300,"cpos",172,108],
+
+]};

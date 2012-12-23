@@ -29,33 +29,28 @@ NumPy, SciPy, OpenCV, and pngcrush.  On Ubuntu, install these packages:
 Usage
 -----
 
-1. Currently, the capture rectangle is hard-coded in main.cpp.  You will
-   probably want to edit that.
-
-2. Build `screencast`:
+1. Build `screencast`:
 
     <pre>
     $ qmake
     $ make
     </pre>
 
-3. Capture an animation:
+2. Capture an animation:
 
     <pre>
-    $ ./screencast | tee example.txt
-    //STARTING IN 2 SECONDS
-    ...
+    $ ./screencast --rect X Y W H --output example.js
     </pre>
 
-4. When done, kill `screencast` with Ctrl-C.
+   Hit Enter to stop the capture.
 
-5. Pack the animation:
+3. Pack the animation:
 
     <pre>
-    $ ./pack_animation.py example.txt
+    $ ./pack_animation.py example.js
     </pre>
 
-   `pack_animation.py example.txt` will output `example_packed.txt` and
+   `pack_animation.py example.js` will output `example_packed.js` and
    `example_packed.png`.
 
 Embedding an animation in a web page
@@ -63,13 +58,15 @@ Embedding an animation in a web page
 
 See the [example](example/example.html).
 
-Include `player.js`.  This script defines a Player class.  Construct it:
+Include the animation's JavaScript file and `player.js` in the page.  The
+`player.js` script defines a Player class.  Construct it:
 
-    var player = Player("<url-of-script-txt-file>", widthPx, heightPx);
+    var player = Player(<animation-script-object>, "<animation-source-dir>");
 
-The `Player` object has an `element` field.  Add or remove it to a page.  A
-player is initially paused; unpause it with the `start` method.  Pause it with
-the `pause` method.
+The `<animation-source-dir>` path will be prefixed to each path in the
+animation script.  The `Player` object has an `element` field.  Add or remove
+it to a page.  A player is initially paused; unpause it with the `start`
+method.  Pause it with the `pause` method.
 
 The `Player` object has two events:
 

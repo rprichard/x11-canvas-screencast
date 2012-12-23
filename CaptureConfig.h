@@ -5,6 +5,12 @@ namespace screencast {
 
 struct CaptureConfig
 {
+    CaptureConfig() :
+        captureX(0), captureY(0),
+        captureWidth(0), captureHeight(0)
+    {
+    }
+
     int captureX;
     int captureY;
     int captureWidth;

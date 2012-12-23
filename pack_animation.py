@@ -31,6 +31,7 @@ import re
 import sys
 import os
 import cv2
+from cStringIO import StringIO
 from numpy import *
 from time import time
 
@@ -124,24 +125,80 @@ def find_matching_rect(bitmap, num_used_rows, packed, src, sx, sy, w, h):
     else:
         return None
 
+# The script file is a JavaScript file consisting of a single variable
+# assignment:
+#    script_var = Extended-JSON;
+# Extended-JSON is a JSON string, except that:
+#  - It may have block (/**/) or line (//) comments.
+#  - Trailing commas are permitted.
+# This function strips the comments and trailing commas out of the
+# Extended-JSON text and parses it to a Python object, which is returned.
+def parse_script_file(input):
+    output = StringIO()
+    quoted = False
+    lineComment = False
+    blockComment = False
+    comma = False
+    i = 0
+    while i < len(input):
+        if lineComment:
+            if input[i] == '\n':
+                lineComment = False
+            i += 1
+        elif blockComment:
+            if input[i:i+2] == "*/":
+                blockComment = False
+                i += 2
+            else:
+                i += 1
+        elif quoted:
+            if input[i] == "\\" and i + 1 < len(input):
+                output.write(input[i:i+2])
+                i += 2
+            else:
+                quoted = (input[i] != '"')
+                output.write(input[i])
+                i += 1
+        else:
+            if input[i:i+2] == "//":
+                lineComment = True
+                i += 2
+            elif input[i:i+2] == "/*":
+                blockComment = True
+                i += 2
+            elif input[i].isspace():
+                # Strip whitespace.
+                i += 1
+            elif input[i] == ",":
+                # Recognize and strip off trailing commas because the JSON
+                # parser rejects them.
+                comma = True
+                i += 1
+            elif input[i] in "]}":
+                output.write(input[i])
+                i += 1
+                comma = False
+            else:
+                if comma:
+                    output.write(",")
+                    comma = False
+                quoted = (input[i] == '"')
+                output.write(input[i])
+                i += 1
+    assert not quoted and not blockComment
+    m = re.match(r"^[A-Za-z0-9_]+=(.*);$", output.getvalue())
+    return json.loads(m.group(1))
+
 def read_script(script_filename):
     with open(script_filename) as f:
-        # Permit two useful things that JavaScript allows but JSON does not:
-        #  - comments (//-style only)
-        #  - trailing comma (i.e. as a terminator rather than a delimiter)
-        lines = f.read().splitlines()
-        lines = [re.sub(r"//.*", "", line) for line in lines]
-        content = "".join(lines).strip()
-        if content.endswith(","):
-            content = content[:-1]
-        return json.loads("[%s]" % content)
+        return parse_script_file(f.read())
 
 def generate_animation(script_filename):
-    assert script_filename.endswith(".txt")
-    anim_name = script_filename[:-4]
+    assert script_filename.endswith(".js")
+    anim_name = script_filename[:-3]
     script = read_script(script_filename)
     frames = [(index, item[2])
-                for (index, item) in enumerate(script)
+                for (index, item) in enumerate(script["steps"])
                 if item[1] == "screen"]
 
     script_dir = os.path.dirname(script_filename)
@@ -209,7 +266,7 @@ def generate_animation(script_filename):
     os.system("rm " + anim_name + "_packed_tmp.png")
 
     # Generate JSON to represent the data
-    new_script = list(script)
+    new_steps = list(script["steps"])
     for i in xrange(len(images)):
         script_index = frames[i][0]
         src_rects = img_areas[i]
@@ -226,13 +283,18 @@ def generate_animation(script_filename):
             blitlist.append(
                 [int(dx), int(dy), int(w), int(h), int(sx), int(sy)])
 
-        new_script[script_index] = [script[script_index][0], "blit", blitlist]
+        new_steps[script_index] = [script["steps"][script_index][0], "blit", blitlist]
 
     packed_png_relpath = os.path.relpath(anim_name + "_packed.png", script_dir)
-    new_script = [[0, "blitimg", packed_png_relpath]] + new_script
-    f = open(anim_name + "_packed.txt", "wb")
-    for item in new_script:
+    new_steps = [[0, "blitimg", packed_png_relpath]] + new_steps
+    f = open(anim_name + "_packed.js", "wb")
+    f.write(os.path.basename(anim_name) + "_packed = {\n")
+    f.write('"width" : %d,\n' % script["width"])
+    f.write('"height" : %d,\n' % script["height"])
+    f.write('"steps" : [\n')
+    for item in new_steps:
         f.write(json.dumps(item) + ",\n")
+    f.write("]};\n")
     f.close()
 
 

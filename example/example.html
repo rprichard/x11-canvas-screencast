@@ -2,18 +2,9 @@
 <html>
 <head>
     <script src="../player.js"></script>
+    <script src="example_packed.js"></script>
 </head>
 <body>
-
-<p>
-Note: The player uses an AJAX request to load the example script.  If you're
-trying to view this page through a file:// URL, then the page is likely not to
-load due to same-origin security restrictions in your browser.  With Chrome,
-you can (temporarily) relax the restrictions using the
---allow-file-access-from-files command-line option, which allows any page from
-a file:// URL to read any file on your local file system that your account is
-able to access.  For other browsers, you will want to view the page via HTTP.
-</p>
 
 <div id="exampleAnimation"></div>
 <a href="javascript:player.start();">start</a><br>
@@ -22,7 +13,7 @@ able to access.  For other browsers, you will want to view the page via HTTP.
 <script>
     // Create the player, add its element, and start it.  There is no need to
     // wait for the player to load before adding its element.
-    var player = new Player("example_packed.txt", 950, 500);
+    var player = new Player(example_packed, ".");
     document.getElementById("exampleAnimation").appendChild(player.element);
     player.start();
 
