@@ -142,8 +142,9 @@ function Player(scriptUrl, widthPx, heightPx)
 
     this.start = function() {
         g_paused = false;
-        if (g_loaded && g_stepTimeoutID === null)
+        if (g_loaded && g_stepTimeoutID === null) {
             beginCurrentStep();
+        }
     }
 
     this.pause = function() {
@@ -153,6 +154,16 @@ function Player(scriptUrl, widthPx, heightPx)
             window.clearTimeout(g_stepTimeoutID);
             g_stepTimeoutID = null;
         }
+    }
+
+    this.isPaused = function() {
+        return g_paused;
+    }
+
+    // Note that this function returns false for the duration of the onload
+    // callback.
+    this.isLoaded = function() {
+        return g_loaded;
     }
 
     g_divElement = document.createElement("div");
