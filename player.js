@@ -144,6 +144,8 @@ function Player(parent, scriptUrl, widthPx, heightPx)
     parent.appendChild(g_divElement);
     g_mainCanvas = document.createElement("canvas");
     g_mainCanvas.style.position = "absolute";
+    g_mainCanvas.style.left = "0px";
+    g_mainCanvas.style.top = "0px";
     g_mainCanvas.width = widthPx;
     g_mainCanvas.height = heightPx;
     g_divElement.appendChild(g_mainCanvas);
