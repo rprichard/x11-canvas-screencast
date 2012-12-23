@@ -15,14 +15,40 @@ a file:// URL to read any file on your local file system that your account is
 able to access.  For other browsers, you will want to view the page via HTTP.
 </p>
 
-before animation
 <div id="exampleAnimation"></div>
+<a href="javascript:player.start();">start</a><br>
+<a href="javascript:player.pause();">pause</a><br>
+
 <script>
-    var p = new Player("example_packed.txt", 950, 500);
-    document.getElementById("exampleAnimation").appendChild(p.element);
-    p.start();
+    // Create the player, add its element, and start it.  There is no need to
+    // wait for the player to load before adding its element.
+    var player = new Player("example_packed.txt", 950, 500);
+    document.getElementById("exampleAnimation").appendChild(player.element);
+    player.start();
+
+    // For demonstration purposes, write to the console log.
+    player.onload = function() {
+        if (window.console && window.console.log)
+            window.console.log("onload");
+    }
+    player.onloop = function() {
+        if (window.console && window.console.log)
+            window.console.log("onloop");
+    }
+    var status = "";
+    function updatePlayerInfo() {
+        var newStatus = "polled-status: " +
+            "loaded=" + player.isLoaded() + " " +
+            "paused=" + player.isPaused();
+        if (newStatus != status) {
+            if (window.console && window.console.log)
+                window.console.log(newStatus);
+            status = newStatus;
+        }
+    }
+    updatePlayerInfo();
+    window.setInterval(updatePlayerInfo, 30);
 </script>
-after animation
 
 </body>
 </html>
