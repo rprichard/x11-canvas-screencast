@@ -56,7 +56,7 @@ Usage
 Embedding an animation in a web page
 ------------------------------------
 
-See the [example](example/example.html).
+See `example/example.html` for an example of embedding the player.
 
 Include the animation's JavaScript file and `player.js` in the page.  The
 `player.js` script defines a Player class.  Construct it:
