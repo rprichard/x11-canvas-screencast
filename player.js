@@ -1,4 +1,4 @@
-function Player(parent, scriptUrl, widthPx, heightPx)
+function Player(scriptUrl, widthPx, heightPx)
 {
     var that = this;
 
@@ -141,7 +141,7 @@ function Player(parent, scriptUrl, widthPx, heightPx)
     g_divElement.style.width = widthPx + "px";
     g_divElement.style.height = heightPx + "px";
     g_divElement.style.overflow = "hidden";
-    parent.appendChild(g_divElement);
+    this.element = g_divElement;
     g_mainCanvas = document.createElement("canvas");
     g_mainCanvas.style.position = "absolute";
     g_mainCanvas.style.left = "0px";
