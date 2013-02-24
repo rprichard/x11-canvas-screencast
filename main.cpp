@@ -115,10 +115,16 @@ int main(int argc, char *argv[])
         fcntl(STDIN_FILENO, F_SETFL, flags);
     }
 
+    const int FPS = 60;
+    const int maxDelayMS = 250;
+    bool firstFrame = true;
+    int delay = 0;
     char buf;
     while (read(STDIN_FILENO, &buf, 1) == -1 && errno == EAGAIN) {
         // Sleep so we poll the screen regularly.
-        sleepMS(1000 / 30/*FPS*/);
+        sleepMS(1000 / FPS);
+        if (!firstFrame)
+            delay = std::min(maxDelayMS, delay + 1000 / FPS);
 
         // Check for CAPS LOCK status.  If the key is pressed, "freeze" the
         // recording.
@@ -157,7 +163,6 @@ int main(int argc, char *argv[])
                     config.captureX, config.captureY,
                     config.captureWidth, config.captureHeight);
         QImage screenshot = screenshotPixmap.toImage();
-        int delay = 100;
 
         if (screenshot != previousImage) {
             QString sampleName = QString("sample_%0.png").arg(QDateTime::currentMSecsSinceEpoch());
@@ -165,9 +170,8 @@ int main(int argc, char *argv[])
             screenshot.save(sampleName);
             fprintf(fp, "[%d,\"screen\",\"%s\"],\n", delay, sampleName.toStdString().c_str());
             delay = 0;
+            firstFrame = false;
         }
-
-        delay = std::min(delay, 30);
 
         if (cursor.position() != previousCursor.position()) {
             fprintf(fp, "[%d,\"cpos\",%d,%d],\n", delay, cursor.position().x(), cursor.position().y());
