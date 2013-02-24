@@ -29,8 +29,11 @@ function Player(script, scriptDir)
     function assert(x) {
         // With IE9, window.console is undefined (unless the console is
         // opened), so we must avoid calling console.assert.
-        if (!x)
+        if (!x) {
+            // This line must have braces around it so that a breakpoint can be
+            // placed on it.  Affects at least Firefox 19.
             throw new Error("Assertion failed");
+        }
     }
 
     function imageLoaded()
@@ -182,7 +185,7 @@ function Player(script, scriptDir)
         if (stepKind == "blitimg" ||
                 stepKind == "screen" ||
                 stepKind == "cimg") {
-            g_imageCount += 1;
+            g_imageCount++;
             var url = g_scriptDir + "/" + g_script[i][2];
             var image = new Image();
             g_imageCache[url] = image;
