@@ -19,6 +19,7 @@ function Player(script, scriptDir)
     var g_imageLoadCount = 0;
 
     var g_loaded = false;
+    var g_inCallback = false;
     var g_paused = true;
     var g_stepTimeoutID = null;
 
@@ -35,8 +36,14 @@ function Player(script, scriptDir)
     function imageLoaded()
     {
         g_imageLoadCount++;
-        if (g_imageLoadCount == g_imageCount)
-            finishSetup();
+        assert(g_imageLoadCount <= g_imageCount);
+        if (g_imageLoadCount == g_imageCount) {
+            // Use an extra delay in the hope that it will work around a
+            // problem with IE9.  With that browser, there is a player bug
+            // where the first frame is not drawn, and the canvas instead
+            // starts off transparent.
+            window.setTimeout(finishSetup, 0);
+        }
     }
 
     function finishSetup()
@@ -52,13 +59,12 @@ function Player(script, scriptDir)
                 break;
             executeStep(g_index);
         }
-
-        that.onload();
-
-        // The onload handler could have called start or pause, so we must wait
-        // until now to set g_loaded, and we must wait to read g_paused until
-        // now.
         g_loaded = true;
+
+        g_inCallback = true;
+        that.onload();
+        g_inCallback = false;
+
         if (!g_paused)
             beginCurrentStep();
     }
@@ -105,7 +111,8 @@ function Player(script, scriptDir)
 
     function beginCurrentStep()
     {
-        assert(!g_paused);
+        assert(g_loaded && !g_paused);
+        assert(g_stepTimeoutID === null);
         var delayMS = g_script[g_index][0];
         g_stepTimeoutID = window.setTimeout(function() {
             g_stepTimeoutID = null;
@@ -113,25 +120,25 @@ function Player(script, scriptDir)
             g_index++;
             if (g_index == g_script.length) {
                 g_index = 0;
+                g_inCallback = true;
                 that.onloop();
-                if (g_paused)
-                    return;
+                g_inCallback = false;
             }
-            beginCurrentStep();
+            if (!g_paused)
+                beginCurrentStep();
         }, delayMS);
     }
 
     this.start = function() {
         g_paused = false;
-        if (g_loaded && g_stepTimeoutID === null) {
+        if (g_loaded && !g_inCallback && g_stepTimeoutID === null) {
             beginCurrentStep();
         }
     }
 
     this.pause = function() {
         g_paused = true;
-        if (g_stepTimeoutID !== null) {
-            assert(g_loaded);
+        if (g_loaded && !g_inCallback && g_stepTimeoutID !== null) {
             window.clearTimeout(g_stepTimeoutID);
             g_stepTimeoutID = null;
         }
