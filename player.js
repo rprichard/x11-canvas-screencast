@@ -95,6 +95,9 @@ function Player(script, scriptDir)
             var ctx = g_cursorCanvas.getContext("2d");
             ctx.clearRect(0, 0, g_cursorCanvas.width, g_cursorCanvas.height);
             ctx.drawImage(g_imageCache[url], 0, 0);
+        } else if (stepKind == "nop") {
+            // Do nothing.  This step kind only exists for convenience in adding
+            // delays to a script.
         } else {
             alert("Invalid step in animation script: " + g_script[index]);
         }
