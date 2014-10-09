@@ -1,7 +1,6 @@
-#include "X11Bridge.h"
+#include "CapsLockState.h"
 
 #include <QX11Info>
-#include <cstdlib>
 
 #include <X11/XKBlib.h>
 

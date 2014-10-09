@@ -1,28 +1,25 @@
 #include <QApplication>
-#include <QApplication>
 #include <QDateTime>
 #include <QDesktopWidget>
 #include <QImage>
 #include <QPainter>
 #include <QPixmap>
 #include <QPoint>
-#include <QX11Info>
+
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
 
-#include <X11/Xlib.h>
-#include <X11/extensions/Xfixes.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <time.h>
 #include <unistd.h>
 
+#include "CapsLockState.h"
 #include "CaptureConfig.h"
 #include "Cursor.h"
 #include "MurmurHash3.h"
-#include "X11Bridge.h"
 
 volatile bool g_finish = false;
 
@@ -149,7 +146,6 @@ int main(int argc, char *argv[])
             fprintf(fp, "//UNFROZEN\n");
             QCursor::setPos(frozenMousePosition);
             previousFrozen = frozen;
-            QX11Info::display();
             // XXX: I don't know why, but constructing this Cursor is necessary
             // to force the setPos call above to take effect *before* pausing.
             screencast::Cursor flushYetAnotherQtCache(config);
@@ -186,5 +182,6 @@ int main(int argc, char *argv[])
 
     fprintf(fp, "]};\n");
     fclose(fp);
+
     return 0;
 }

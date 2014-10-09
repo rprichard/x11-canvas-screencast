@@ -19,6 +19,9 @@ public:
     uint32_t imageID() { return m_imageID; }
 
 private:
+	static uint32_t blankCursor();
+
+private:
     QPoint m_position;
     uint32_t m_imageID;
     static std::set<uint32_t> m_cachedImages;

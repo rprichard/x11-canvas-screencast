@@ -4,23 +4,35 @@ TARGET = screencast
 CONFIG   += console
 CONFIG   -= app_bundle
 
-CONFIG += link_pkgconfig
-PKGCONFIG += x11 xfixes
-
 TEMPLATE = app
 
 SOURCES += \
-    main.cpp \
-    MurmurHash3.cpp \
-    Cursor.cpp \
     CaptureConfig.cpp \
-    X11Bridge.cpp
+    CursorCommon.cpp \
+    MurmurHash3.cpp \
+    main.cpp
+
+macx {
+    LIBS += -framework AppKit
+
+    OBJECTIVE_SOURCES += \
+        CapsLockStateOSX.mm \
+        CursorOSX.mm
+
+} else {
+    SOURCES += \
+        CapsLockStateX11.cpp \
+        CursorX11.cpp
+
+    CONFIG += link_pkgconfig
+    PKGCONFIG += x11 xfixes
+}
 
 HEADERS += \
-    MurmurHash3.h \
-    Cursor.h \
     CaptureConfig.h \
-    X11Bridge.h
+    CapsLockState.h \
+    Cursor.h \
+    MurmurHash3.h
 
 # HACK: Avoid stripping the scripts.
 QMAKE_STRIP =

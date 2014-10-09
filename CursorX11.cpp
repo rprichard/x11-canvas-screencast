@@ -1,12 +1,16 @@
 #include "Cursor.h"
 
-#include <QPoint>
-#include <QPainter>
+#include <QImage>
+#include <QString>
 #include <QX11Info>
+
 #include <X11/Xlib.h>
 #include <X11/extensions/Xfixes.h>
+
 #include <cstdlib>
+#include <set>
 #include <vector>
+
 #include <stdint.h>
 
 #include "CaptureConfig.h"

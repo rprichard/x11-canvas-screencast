@@ -1,12 +1,14 @@
 x11-canvas-screencast
 =====================
 
-x11-canvas-screencast is an X11-to-HTML5-Canvas screencasting system that uses
+x11-canvas-screencast is a UNIX-to-HTML5-Canvas screencasting system that uses
 the same animation technique as the [anim_encoder][1] project.
 
 [1]: https://www.github.com/sublimehq/anim_encoder
 
-The project includes a Qt-X11 executable, `screencast`, which polls the screen
+This project's name is now a misnomer.  On OS X, it does not use X11 at all.
+
+The project includes a Qt executable, `screencast`, which polls the screen
 and mouse cursor and outputs an animation.  Specifically, it writes an
 animation script (a CSV-separated list of steps) and a number of PNG files (one
 per screen capture and one per unique mouse cursor).  The `pack_animation.py`
@@ -20,9 +22,10 @@ tweak the animation prior to packing it.
 Prerequisites
 -------------
 
-The `screencast` program needs Qt and the XFixes extension.  The
-`pack_animation.py` script has the same dependencies as `anim_encoder` --
-NumPy, SciPy, OpenCV, and pngcrush.  On Ubuntu, install these packages:
+The `screencast` program depends on Qt.  On targets other than OS X, it also
+needs the XFixes extension to query the mouse cursor.  The `pack_animation.py`
+script has the same dependencies as `anim_encoder` -- NumPy, SciPy, OpenCV, and
+pngcrush.  On Ubuntu, install these packages:
 
     libqt4-dev libxfixes-dev python-numpy python-scipy python-opencv pngcrush
 
