@@ -42,6 +42,7 @@ Cursor::Cursor(const CaptureConfig &config)
                 &m_imageID);
 
     if (m_cachedImages.find(m_imageID) == m_cachedImages.end()) {
+        m_cachedImages.insert(m_imageID);
         bridgeWriteCursorFile(tiffData, m_imageID);
     }
 
