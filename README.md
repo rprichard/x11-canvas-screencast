@@ -81,6 +81,15 @@ The `Player` object has two events:
  - `onloop`.  This is called at the end of the animation, as it is looping back
    to the beginning.  Pause it here to prevent looping.
 
+Caveats
+-------
+
+I have not tested the `screencast` program with multiple screens or with
+high-DPI/Retina screens.  Either situation could break badly.
+
+On OS X, I have tested the `screencast` program, but not `pack_animation.py`.
+It will probably work fine if the Python dependencies are satisfied.
+
 License
 -------
 
