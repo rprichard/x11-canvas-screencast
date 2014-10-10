@@ -15,9 +15,14 @@ SOURCES += \
 macx {
     LIBS += -framework AppKit
 
+    SOURCES += \
+        CapsLockStateOSX.cpp \
+        CursorOSX.cpp
+
     OBJECTIVE_SOURCES += \
-        CapsLockStateOSX.mm \
-        CursorOSX.mm
+        ObjectiveCBridge.m
+    HEADERS += \
+        ObjectiveCBridge.h
 
 } else {
     SOURCES += \
