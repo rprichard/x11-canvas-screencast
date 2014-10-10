@@ -11,8 +11,8 @@ extern "C" {
 #endif
 
 typedef struct {
-	double x;
-	double y;
+    double x;
+    double y;
 } BridgePoint;
 
 id cursor_currentSystemCursor();

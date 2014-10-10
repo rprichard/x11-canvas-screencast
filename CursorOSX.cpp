@@ -25,7 +25,7 @@ Cursor::Cursor(const CaptureConfig &config)
     BridgePoint hotSpot = cursor_hotSpot(cursor);
     BridgePoint mouseLocation = event_mouseLocation();
     id cursorImage = cursor_image(cursor);
-    id tiffData = cursorImage != nil ? 
+    id tiffData = cursorImage != nil ?
         image_TIFFRepresentation(cursorImage) : nil;
 
     if (tiffData == nil) {
@@ -48,7 +48,7 @@ Cursor::Cursor(const CaptureConfig &config)
 
     // The NSCursor Y coordinate's origin is at the bottom of the screen.
     // Invert it.
-    mouseLocation.y = 
+    mouseLocation.y =
         QApplication::desktop()->screenGeometry().height() - mouseLocation.y;
 
     m_position.rx() = mouseLocation.x - hotSpot.x - config.captureX;

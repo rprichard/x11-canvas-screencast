@@ -19,7 +19,7 @@ public:
     uint32_t imageID() { return m_imageID; }
 
 private:
-	static uint32_t blankCursor();
+    static uint32_t blankCursor();
 
 private:
     QPoint m_position;
