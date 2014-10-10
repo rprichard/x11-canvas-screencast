@@ -100,9 +100,19 @@ function Player(script, scriptDir)
             g_cursorCanvas.style.left = g_script[index][2] + "px";
             g_cursorCanvas.style.top = g_script[index][3] + "px";
         } else if (stepKind == "cimg") {
+            // "cimg" is an obsolete script command kept for backwards
+            // compatibility with existing animations.
             var url = g_scriptDir + "/" + g_script[index][2];
             var ctx = g_cursorCanvas.getContext("2d");
             ctx.clearRect(0, 0, g_cursorCanvas.width, g_cursorCanvas.height);
+            ctx.drawImage(g_imageCache[url], 0, 0);
+        } else if (stepKind == "cursor") {
+            // Clear the canvas first, then move it, then draw the new cursor.
+            var url = g_scriptDir + "/" + g_script[index][2];
+            var ctx = g_cursorCanvas.getContext("2d");
+            ctx.clearRect(0, 0, g_cursorCanvas.width, g_cursorCanvas.height);
+            g_cursorCanvas.style.left = g_script[index][3] + "px";
+            g_cursorCanvas.style.top = g_script[index][4] + "px";
             ctx.drawImage(g_imageCache[url], 0, 0);
         } else if (stepKind == "nop") {
             // Do nothing.  This step kind only exists for convenience in adding
@@ -184,7 +194,8 @@ function Player(script, scriptDir)
         var stepKind = g_script[i][1];
         if (stepKind == "blitimg" ||
                 stepKind == "screen" ||
-                stepKind == "cimg") {
+                stepKind == "cimg" ||
+                stepKind == "cursor") {
             g_imageCount++;
             var url = g_scriptDir + "/" + g_script[i][2];
             var image = new Image();

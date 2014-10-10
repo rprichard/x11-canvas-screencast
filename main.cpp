@@ -169,12 +169,15 @@ int main(int argc, char *argv[])
             firstFrame = false;
         }
 
-        if (cursor.position() != previousCursor.position()) {
-            fprintf(fp, "[%d,\"cpos\",%d,%d],\n", delay, cursor.position().x(), cursor.position().y());
-            delay = 0;
-        }
         if (cursor.imageID() != previousCursor.imageID()) {
-            fprintf(fp, "[%d,\"cimg\",\"cursor_%u.png\"],\n", delay, cursor.imageID());
+            fprintf(fp, "[%d,\"cursor\",\"cursor_%u.png\",%d,%d],\n", 
+                delay, cursor.imageID(), 
+                cursor.position().x(), cursor.position().y());
+            delay = 0;
+        } else if (cursor.position() != previousCursor.position()) {
+            fprintf(fp, "[%d,\"cpos\",%d,%d],\n", 
+                delay, 
+                cursor.position().x(), cursor.position().y());
             delay = 0;
         }
         previousCursor = cursor;
